@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Assertions;
 
 public class PenCommandsFactoryTest {
 
-    private PenCommandsFactory penCommandsFactory = PenCommandsFactory.init();
+    private PenCommandsFactory penCommandsFactory = PenCommandsFactory.newInstance();
 
     @Test
     public void testSelectPenCommand() {

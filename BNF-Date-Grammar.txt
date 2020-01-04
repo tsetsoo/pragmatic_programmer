@@ -1,0 +1,22 @@
+<minutesFirstDigit> ::= 0|1|2|3|4|5
+<minutesSecondDigit> ::= 0|1|2|3|4|5|6|7|8|9
+<minutes> ::= ":" <minutesFirstDigit> <minutesSecondDigit>
+
+<APM> ::= "am"|"pm"
+<firstDigit12> ::= 1
+<secondDigit12> ::= 0|1|2
+<onlyDigit12> ::= 1|2|3|4|5|6|7|8|9
+
+<12hours> ::= <firstDigit12> <secondDigit12> | <onlyDigit12>
+
+
+<firstDigit24small> ::= 0|1
+<secondDigit24small> ::= 0|1|2|3|4|5|6|7|8|9
+
+<firstDigit24big> ::= 2
+<secondDigit24big> ::= 0|1|2|3
+
+<hours24> ::= <firstDigit24small> <secondDigit24small> | <firstDigit24big> <secondDigit24big>
+
+
+<total> ::= <12hours> <APM> | <12hours> <minutes> <APM> | <hours24> <minutes> | <12hours> <minutes>

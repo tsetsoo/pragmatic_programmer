@@ -9,7 +9,7 @@ public class PenCommandsFactory {
     private PenCommandsFactory() {
     }
 
-    public static PenCommandsFactory init() {
+    public static PenCommandsFactory newInstance() {
         PenCommandsFactory factory = new PenCommandsFactory();
         factory.commands.put("P", (String... parameters) -> {
             if (parameters.length != 1) {
