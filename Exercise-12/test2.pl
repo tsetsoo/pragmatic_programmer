@@ -1,21 +1,23 @@
 #!/usr/bin/perl
 use strict;
-use strict;
-use strictuse strictuse strict
-use strict
-
 
 use warnings;
 
-use Test::More;
-use UNIVERSAL::require;
-use English qw(-no_match_vars);
+# first, create your message
+use Email::MIME;
+my $message = Email::MIME->create(
+  header_str => [
+    From    => 'you@example.com',
+    To      => 'friend@example.com',
+    Subject => 'Happy birthday!',
+  ],
+  attributes => {
+    encoding => 'quoted-printable',
+    charset  => 'ISO-8859-1',
+  },
+  body_str => "Happy birthday to you!\n",
+);
 
-plan(skip_all => 'Author test, set $ENV{TEST_AUTHOR} to a true value to run')
-    if !$ENV{TEST_AUTHOR};
-
-plan(skip_all => 'Test::Pod required')
-    unless Test::Pod->require();
-
-Test::Pod->import();
-
+# send the message
+use Email::Sender::Simple qw(sendmail);
+sendmail($message);

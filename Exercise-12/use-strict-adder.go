@@ -28,9 +28,8 @@ func main() {
 		if !strings.Contains(file, ".pl") {
 			continue
 		}
-
+		writeToFile(file)
 	}
-	writeToFile("test2.pl")
 }
 
 func writeToFile(file string) {
@@ -49,12 +48,8 @@ func writeToFile(file string) {
 
 		// loop termination condition 1:  EOF.
 		// this is the normal loop termination condition.
-		if err == io.EOF {
-			break
-		}
 		text := string(bytes)
-
-		if strings.Contains(text, "\nuse strict;") {
+		if strings.HasPrefix(text, "use strict;") {
 			shouldAppend = false
 			break
 		}
@@ -66,10 +61,12 @@ func writeToFile(file string) {
 		} else {
 			offset += int64(len(bytes))
 		}
+		if err == io.EOF {
+			break
+		}
 	}
 	if shouldAppend {
-		toWrite := fmt.Sprintf("use strict;\n%s", string(offsetWrite))
-		print(toWrite)
+		toWrite := fmt.Sprintf("use strict;%s", string(offsetWrite))
 		_, err6 := f.WriteAt([]byte(toWrite), offset)
 		check(err6)
 	}
