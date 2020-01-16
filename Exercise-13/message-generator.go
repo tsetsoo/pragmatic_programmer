@@ -47,19 +47,110 @@ func main() {
 			panic(fmt.Errorf("Invalid document structure"))
 		}
 	}
-	name := "generated"
-	javaFile, err := os.Create(fmt.Sprintf("./%s.java", name))
-	check(err)
-	defer javaFile.Close()
+	fmt.Println("Template parsing completed successfully.")
+	for {
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Enter target file (END if finished):\n")
+		text, err := reader.ReadString('\n')
+		check(err)
+		text = strings.TrimSpace(text)
+		if text == "END" {
+			break
+		}
+		splitInput := strings.Split(text, ".")
+		extension := splitInput[len(splitInput)-1]
+		file, err := os.Create(fmt.Sprintf("./%s", text))
+		check(err)
+		defer file.Close()
+		generator, err := contentGenerator(extension)
+		check(err)
+		wrapper := GeneratorWrapper{
+			generator: generator,
+			model:     model,
+		}
+		fmt.Println(wrapper.Content())
+		_, err = file.WriteString(wrapper.Content())
+		check(err)
+	}
+	fmt.Println("Finished")
+}
 
-	goFile, err := os.Create(fmt.Sprintf("./%s.go", name))
-	check(err)
-	defer goFile.Close()
+func contentGenerator(extension string) (Generator, error) {
+	switch extension {
+	case "go":
+		return GoGenerator{}, nil
+	case "java":
+		return JavaGenerator{}, nil
+	case "c":
+		return CGenerator{}, nil
+	case "pp":
+		return PascalGenerator{}, nil
+	default:
+		return nil, fmt.Errorf("Does not support extension: %s", extension)
+	}
 }
 
 type Generator interface {
-	AddComments()
-	AddContent(name string, properties map[string]string)
+	Comments(comments []string) string
+	Struct(name string, fields map[string]string) string
+}
+
+type GoGenerator struct {
+}
+
+func (g GoGenerator) Comments(comments []string) string {
+	return cStyleComments(comments)
+}
+
+func (g GoGenerator) Struct(name string, fields map[string]string) string {
+	return ""
+}
+
+type JavaGenerator struct {
+}
+
+func (g JavaGenerator) Comments(comments []string) string {
+	return cStyleComments(comments)
+}
+func (g JavaGenerator) Struct(name string, fields map[string]string) string {
+	return ""
+}
+
+type CGenerator struct {
+}
+
+func (g CGenerator) Comments(comments []string) string {
+	return cStyleComments(comments)
+}
+func (g CGenerator) Struct(name string, fields map[string]string) string {
+	return ""
+}
+
+type PascalGenerator struct {
+}
+
+func (g PascalGenerator) Comments(comments []string) string {
+	return ""
+}
+func (g PascalGenerator) Struct(name string, fields map[string]string) string {
+	return ""
+}
+
+type GeneratorWrapper struct {
+	generator Generator
+	model     Model
+}
+
+func (g GeneratorWrapper) Content() string {
+	return g.generator.Comments(g.model.comments) + g.generator.Struct(g.model.name, g.model.properties)
+}
+
+func cStyleComments(comments []string) string {
+	var sb strings.Builder
+	for _, str := range comments {
+		sb.WriteString(fmt.Sprintf("// %s\n", str))
+	}
+	return sb.String()
 }
 
 type Model struct {
