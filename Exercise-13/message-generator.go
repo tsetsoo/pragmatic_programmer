@@ -81,10 +81,6 @@ func contentGenerator(extension string) (Generator, error) {
 		return GoGenerator{}, nil
 	case "java":
 		return JavaGenerator{}, nil
-	case "c":
-		return CGenerator{}, nil
-	case "pp":
-		return PascalGenerator{}, nil
 	default:
 		return nil, fmt.Errorf("Does not support extension: %s", extension)
 	}
@@ -103,7 +99,13 @@ func (g GoGenerator) Comments(comments []string) string {
 }
 
 func (g GoGenerator) Struct(name string, fields map[string]string) string {
-	return ""
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("type %s struct {\n", name))
+	for field, typeOf := range fields {
+		sb.WriteString(fmt.Sprintf("  %s %s\n", field, mappings()["go"][typeOf]))
+	}
+	sb.WriteString("}")
+	return sb.String()
 }
 
 type JavaGenerator struct {
@@ -113,27 +115,13 @@ func (g JavaGenerator) Comments(comments []string) string {
 	return cStyleComments(comments)
 }
 func (g JavaGenerator) Struct(name string, fields map[string]string) string {
-	return ""
-}
-
-type CGenerator struct {
-}
-
-func (g CGenerator) Comments(comments []string) string {
-	return cStyleComments(comments)
-}
-func (g CGenerator) Struct(name string, fields map[string]string) string {
-	return ""
-}
-
-type PascalGenerator struct {
-}
-
-func (g PascalGenerator) Comments(comments []string) string {
-	return ""
-}
-func (g PascalGenerator) Struct(name string, fields map[string]string) string {
-	return ""
+	var sb strings.Builder
+	sb.WriteString(fmt.Sprintf("class %s {\n", name))
+	for field, typeOf := range fields {
+		sb.WriteString(fmt.Sprintf("  %s %s;\n", mappings()["java"][typeOf], field))
+	}
+	sb.WriteString("}")
+	return sb.String()
 }
 
 type GeneratorWrapper struct {
@@ -157,4 +145,17 @@ type Model struct {
 	name       string
 	properties map[string]string
 	comments   []string
+}
+
+func mappings() map[string]map[string]string {
+	return map[string]map[string]string{
+		"go": {
+			"int":    "int",
+			"string": "string",
+		},
+		"java": {
+			"int":    "int",
+			"string": "string",
+		},
+	}
 }
