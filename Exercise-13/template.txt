@@ -1,0 +1,7 @@
+# Add a product
+# to the 'on-order' list
+M AddProduct
+F id         int
+F name       string
+F order_code int
+E
